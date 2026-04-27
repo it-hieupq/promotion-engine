@@ -1,0 +1,98 @@
+services:
+  mariadb:
+    image: mariadb:10.11
+    container_name: promo-mariadb
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+    ports:
+      - "3308:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - promo-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: promo-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - promo-net
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: promo-zookeeper
+    restart: unless-stopped
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - promo-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: promo-kafka
+    restart: unless-stopped
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    networks:
+      - promo-net
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: promo-kafka-ui
+    restart: unless-stopped
+    depends_on:
+      - kafka
+    ports:
+      - "8090:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: promo-engine
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    networks:
+      - promo-net
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: promo-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - promo-net
+
+  # Application services sẽ được thêm khi scaffold từng service
+  # auth-service:        { build: ./auth-service,         ports: ["8081:8081"] }
+  # api-gateway:         { build: ./api-gateway,          ports: ["8080:8080"] }
+  # campaign-service:    { build: ./campaign-service,     ports: ["8082:8082"] }
+  # voucher-service:     { build: ./voucher-service,      ports: ["8083:8083"] }
+  # notification-service:{ build: ./notification-service, ports: ["8084:8084"] }
+  # executor-service:    { build: ./executor-service,     ports: ["8085:8085"] }
+
+volumes:
+  mariadb_data:
+  redis_data:
+
+networks:
+  promo-net:
+    driver: bridge

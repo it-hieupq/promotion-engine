@@ -1,0 +1,16 @@
+# IDEs
+.idea/
+.vscode/
+
+# Spring Boot
+*.log
+logs/
+
+# Maven
+*/target/
+target/
+*.class
+*.jar
+*.war
+
+# Env
