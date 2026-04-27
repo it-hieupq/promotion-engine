@@ -1,0 +1,81 @@
+### Variables
+@baseUrl = http://localhost:8081/api/v1/auth
+@accessToken =
+@refreshToken =
+
+### ===========================
+### REGISTER
+### ===========================
+
+### Register new user
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+
+### ===========================
+### EMAIL VERIFICATION
+### ===========================
+
+### Verify email (replace token with value from email/log)
+GET {{baseUrl}}/verify-email?token=REPLACE_WITH_TOKEN
+
+### Resend verification email
+POST {{baseUrl}}/resend-verification
+Content-Type: application/json
+
+{
+  "email": "user@example.com"
+}
+
+### ===========================
+### LOGIN
+### ===========================
+
+### Login
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+
+### ===========================
+### AUTHENTICATED REQUESTS
+### ===========================
+
+### Get current user info
+GET {{baseUrl}}/me
+Authorization: Bearer {{accessToken}}
+
+### ===========================
+### TOKEN
+### ===========================
+
+### Refresh access token
+POST {{baseUrl}}/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### ===========================
+### LOGOUT
+### ===========================
+
+### Logout current session
+POST {{baseUrl}}/logout
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### Logout all sessions
+POST {{baseUrl}}/logout-all
+Authorization: Bearer {{accessToken}}
