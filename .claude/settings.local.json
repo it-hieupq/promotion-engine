@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(openssl version *)",
+      "Bash(mkdir -p \"auth-service/src/main/resources/certs\")",
+      "Bash(openssl genpkey *)",
+      "Bash(openssl rsa *)"
+    ]
+  }
+}

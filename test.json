@@ -1,0 +1,173 @@
+{
+  "CHECK_VTP_PACKAGE": {
+    "isEnable": true,
+    "validVtpPackages": "VTP_PACK_EKYC_2,VTP_PACK_EKYC_1,VTP_PACK_3,VTP_PACK_2A_NEW"
+  },
+  "CHECK_BLACKLIST": {
+    "isEnable": true,
+    "blacklistCode": "BL0008",
+    "productCode": "VTM"
+  },
+  "CHECK_ID_CARD_TYPE": {
+    "isEnable": true,
+    "validIdCardTypes": "6"
+  },
+  "CHECK_VT_SIM_STATUS": {
+    "isEnable": true,
+    "simStatusCode": "000"
+  },
+  "CHECK_VT_TELE_PROVIDER": {
+    "isEnable": true
+  },
+  "CHECK_AGE": {
+    "isEnable": true,
+    "minAge": 21,
+    "maxAge": 60
+  },
+  "CHECK_RELOAN_PACKAGE": {
+    "isEnable": true,
+    "reloanGap": 540,
+    "reloanStatuses": [
+      "CLOSED"
+    ]
+  },
+  "CHECK_VT_SIM_ACTIVE_TIME": {
+    "isEnable": false,
+    "minActiveDays": 180
+  },
+  "CHECK_NUM_EKYC": {
+    "isEnable": false
+  },
+  "CHECK_VTP_ACTIVE_TIME": {
+    "isEnable": false,
+    "minActiveDays": 90
+  },
+  "CHECK_VTP_AND_SIM_ACTIVE_TIME": {
+    "isEnable": true,
+    "minVtSimActiveTime": 270,
+    "isActivateSubCondition": true,
+    "minVtmActiveTimeSub": 60
+  },
+  "CHECK_INFO_VT_VS_INFO_VTM": {
+    "isEnable": false,
+    "validVtpPackages": "VTP_PACK_2A,VTP_PACK_3,VTP_PACK_EKYC_2",
+    "checkingCustomerInfoFields": "FULL_NAME,ID_NO,BIRTH_DATE,ID_TYPE,ID_ISSUE_DATE,GENDER",
+    "maxDifferenceFieldCount": 3
+  },
+  "CHECK_INFO_FOLLOW_ID_CARD_TYPE": {
+    "isEnable": true,
+    "target": "ID_TYPE",
+    "checkInfoFieldsIfTrue": [
+      "FULL_NAME",
+      "ID_NO",
+      "BIRTH_DATE"
+    ],
+    "checkInfoFieldsIfFalse": [
+      "FULL_NAME",
+      "BIRTH_DATE"
+    ]
+  },
+  "CHECK_WHITELIST": {
+    "isEnable": false,
+    "whitelistCode": "BL0017"
+  },
+  "CHECK_LOAN_LIST_STATUS": {
+    "isEnable": true,
+    "loanSummaryCondition": {
+      "loanStatusGroups": [
+        {
+          "productCode": [
+            "CLBCAKE",
+            "FAST_MONEY",
+            "TIN_VAY",
+            "CAKE_CASHLOAN",
+            "FEC_CASHLOAN"
+          ],
+          "status": [
+            "DISBURSED",
+            "33",
+            "PENDING_SIGNCONTRACT",
+            "PENDING_SIGN_CONTRACT",
+            "6",
+            "WAITING_FOR_APPROVAL",
+            "8",
+            "WAITING_FOR_SEND_TO_PARTNER",
+            "31",
+            "SEND_TO_PARTNER",
+            "PENDING_UNDERWRITING",
+            "APPROVAL",
+            "PENDING_ESIGNING",
+            "PENDING_DISBURSEMENT",
+            "OVER_DUE",
+            "OVERDUE"
+          ]
+        }
+      ],
+      "scoringPartner": "BI",
+      "subConditions": [
+        {
+          "requiredData": [],
+          "expression": "#loans.?[(status matches \\"
+          DISBURSED
+          \
+          \
+          " or status matches \\"
+          33
+          \
+          \
+          ") and (createdDate.isAfter(#currentTime.minusDays(7)))].isEmpty()",
+          "errorCode": "MAX_LOAN_ACTIVE"
+        },
+        {
+          "requiredData": [],
+          "expression": "#loans.?[(status matches \\"
+          DISBURSED
+          \
+          \
+          " or status matches \\"
+          33
+          \
+          \
+          ") and (createdDate.isAfter(#currentTime.minusDays(35)))].isEmpty()",
+          "subConditions": [
+            {
+              "requiredData": [
+                "CREDIT_SCORE"
+              ],
+              "expression": "#creditScore >= 765",
+              "errorCode": "CREDIT_FAILED"
+            }
+          ]
+        },
+        {
+          "requiredData": [],
+          "expression": "#loans.?[(status matches \\"
+          OVERDUE
+          \
+          \
+          " or status matches \\"
+          OVER_DUE
+          \
+          \
+          ")].isEmpty()",
+          "errorCode": "OVERDUE_CONTRACT_EXIST"
+        },
+        {
+          "requiredData": [],
+          "expression": "#loans.?[(status == \'\'PENDING_SIGNCONTRACT\'\' or status == \'\'PENDING_SIGN_CONTRACT\'\' or status == \'\'6\'\' or status == \'\'PENDING_ESIGNING\'\') and (createdDate.isAfter(#currentTime.minusDays(15)))].isEmpty()",
+          "errorCode": "PENDING_SIGN_CONTRACT_EXIST"
+        },
+        {
+          "requiredData": [],
+          "expression": "#loans.?[(status == \'\'WAITING_FOR_APPROVAL\'\' or status == \'\'8\'\' or status == \'\'SEND_TO_PARTNER\'\' or status == \'\'PENDING_UNDERWRITING\'\' or status == \'\'APPROVAL\'\') and (createdDate.isAfter(#currentTime.minusDays(1)))].isEmpty()",
+          "errorCode": "PROCESSING_CONTRACT_EXIST"
+        },
+        {
+          "requiredData": [],
+          "expression": "#loans.?[(status == \'\'WAITING_FOR_DISBURSEMENT\'\' or status == \'\'31\'\' or status == \'\'PENDING_DISBURSEMENT\'\' ) and (createdDate.isAfter(#currentTime.minusDays(90)))].isEmpty()",
+          "errorCode": "PROCESSING_CONTRACT_EXIST"
+        }
+      ]
+    }
+  }
+}

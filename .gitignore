@@ -13,4 +13,7 @@ target/
 *.jar
 *.war
 
+# JWT Keys — never commit private key
+**/certs/private.pem
+
 # Env
